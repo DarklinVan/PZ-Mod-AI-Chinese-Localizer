@@ -8,6 +8,7 @@ Project Zomboid 模组本地化（英→中）辅助工具。
 .
 ├── main.py                # 统一入口
 ├── config.py              # 共享路径/常量
+├── logger.py              # JSON日志系统（自动轮转）
 ├── steps/                 # 各步骤模块
 │   ├── collect.py         #   步骤1: 收集EN翻译文件
 │   ├── merge.py           #   步骤2: 合并同名文件
@@ -26,6 +27,8 @@ Project Zomboid 模组本地化（英→中）辅助工具。
 │   ├── merged/            #   步骤2输出: 合并后的文件
 │   ├── onhold/            #   步骤3输出: 物品名称文件
 │   └── translate_cache.json # 翻译缓存（增量翻译）
+├── logs/                  # JSON日志文件（不入库）
+│   └── app.log            #   结构化日志（自动轮转）
 └── output/                # 最终翻译输出（不入库）
 ```
 
@@ -86,6 +89,22 @@ python.exe main.py clean        # 手动: 清理temp目录
 | `DEEPSEEK_BASE_URL` | API 地址 | `https://api.deepseek.com` |
 | `DEEPSEEK_MODEL` | 模型名称 | `deepseek-chat` |
 | `TRANSLATE_BATCH_SIZE` | 每批翻译词条数 | `200` |
+| `TRANSLATE_MAX_TOKENS` | API响应最大token数 | `16384` |
+| `LOG_LEVEL` | 日志级别 (DEBUG/INFO/WARN/ERROR) | `INFO` |
+
+### 日志系统 (`logs/`)
+
+`logger.py` 提供结构化 JSON 日志：
+
+- **路径**: `logs/app.log`
+- **格式**: JSON 每行一条，包含 `timestamp`、`level`、`module`、`func`、`line`、`message`
+- **轮转**: 单文件最大 10MB，保留 5 个备份
+- **级别**: 通过 `.env` 的 `LOG_LEVEL` 配置，或运行时 `main.py --log-level DEBUG translate`
+- **容错**: 日志写入失败不影响主流程
+
+```json
+{"timestamp":"2026-05-03T18:18:10.213029+00:00","level":"INFO","module":"pzlocalize","func":"main","message":"启动汉化工具"}
+```
 
 ### 固定名词 (`glossary.txt`)
 
