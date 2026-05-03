@@ -8,7 +8,7 @@ Project Zomboid 模组本地化（英→中）辅助工具。
 .
 ├── main.py                # 统一入口
 ├── config.py              # 共享路径/常量
-├── logger.py              # JSON日志系统（自动轮转）
+├── logger.py              # 日志系统（自动轮转）
 ├── steps/                 # 各步骤模块
 │   ├── collect.py         #   步骤1: 收集EN翻译文件
 │   ├── merge.py           #   步骤2: 合并同名文件
@@ -19,16 +19,15 @@ Project Zomboid 模组本地化（英→中）辅助工具。
 ├── .env.example           # 环境变量模板
 ├── .gitignore
 ├── glossary.txt           # 固定名词翻译对照表
-├── glossary.txt.example   # 固定名词翻译对照表模板
 ├── prompt.txt             # AI翻译提示词
+├── translate_cache.json   # 翻译缓存（自动生成，不入库）
 ├── original/              # 原始mod文件（不入库）
 ├── temp/                  # 中间产物（不入库）
 │   ├── <workshopid>/      #   步骤1输出: 收集的EN文件
 │   ├── merged/            #   步骤2输出: 合并后的文件
-│   ├── onhold/            #   步骤3输出: 物品名称文件
-│   └── translate_cache.json # 翻译缓存（增量翻译）
-├── logs/                  # JSON日志文件（不入库）
-│   └── app.log            #   结构化日志（自动轮转）
+│   └── onhold/            #   步骤3输出: 物品名称文件
+├── logs/                  # 日志文件（不入库）
+│   └── app.log            #   文本格式日志（自动轮转）
 └── output/                # 最终翻译输出（不入库）
 ```
 
@@ -66,18 +65,19 @@ python.exe main.py clean        # 手动: 清理temp目录
 | 步骤 | 功能 | 输入 | 输出 |
 |------|------|------|------|
 | `collect` | 从mod提取EN翻译文件（大小写不敏感） | `original/` | `temp/<wid>/<name>/.../EN/` |
-| `merge` | 合并多mod同名文件,txt加分隔符,json合并去重 | `temp/<wid>/` | `temp/merged/` |
-| `items` | 提取`module.itemid`与DisplayName | `original/` | `temp/onhold/.../ItemName_EN.txt` + `.json` |
+| `merge` | 合并多mod同名文件，txt加分隔符，json合并去重 | `temp/<wid>/` | `temp/merged/` |
+| `items` | 提取 `module.itemid` 与 DisplayName | `original/` | `temp/onhold/.../ItemName_EN.txt` + `.json` |
 | `translate` | AI翻译，先查缓存仅调未命中词条 | `temp/merged/` + `temp/onhold/` | `output/` |
 | `clean` | 清空 `temp/`（手动执行，不在流水线中） | `temp/` | — |
 
 ### 增量翻译
 
-步骤4首次运行后会在 `temp/` 生成 `translate_cache.json`。后续再次翻译时：
-- 命中缓存 → 直接使用，不调用API
-- 未命中 → 仅翻译新增词条，更新缓存
+步骤4首次运行后会在项目根目录生成 `translate_cache.json`。后续再次翻译时：
 
-清除缓存：`python main.py clean`
+- **命中缓存** → 直接使用，不调用API
+- **未命中** → 仅翻译新增词条，更新缓存
+
+清除缓存：`del translate_cache.json`
 
 ## 配置说明
 
@@ -94,17 +94,13 @@ python.exe main.py clean        # 手动: 清理temp目录
 
 ### 日志系统 (`logs/`)
 
-`logger.py` 提供结构化 JSON 日志：
+`logger.py` 提供自动轮转的文本日志：
 
 - **路径**: `logs/app.log`
-- **格式**: JSON 每行一条，包含 `timestamp`、`level`、`module`、`func`、`line`、`message`
+- **格式**: `[2026-05-04 02:39:37] [INFO] [函数名] 消息内容`
 - **轮转**: 单文件最大 10MB，保留 5 个备份
 - **级别**: 通过 `.env` 的 `LOG_LEVEL` 配置，或运行时 `main.py --log-level DEBUG translate`
 - **容错**: 日志写入失败不影响主流程
-
-```json
-{"timestamp":"2026-05-03T18:18:10.213029+00:00","level":"INFO","module":"pzlocalize","func":"main","message":"启动汉化工具"}
-```
 
 ### 固定名词 (`glossary.txt`)
 
