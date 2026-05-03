@@ -1,0 +1,254 @@
+# ===== 车辆品牌/制造商 =====
+Oshkosh	奥什科什
+Mercedes Benz	梅赛德斯-奔驰
+Mercedes-Benz	梅赛德斯-奔驰
+AM General	AM通用
+NISSAN	日产
+Nissan	日产
+Ford	福特
+Porsche	保时捷
+Chevrolet	雪佛兰
+Chevy	雪佛兰
+Airstream	清风房车
+Scamp	Scamp
+Bambi	Bambi
+
+# ===== 车辆型号 =====
+Skyline GT-R	天际线GT-R
+Crown Victoria	皇冠维多利亚
+HMMWV	悍马
+Step-Van	厢式货车
+BTR-80	BTR-80
+BMP-2	BMP-2
+K5 Blazer	K5 Blazer
+Econoline	Econoline
+CUCV	CUCV
+Hillbilly	乡巴佬
+runFlat	防爆轮胎
+
+# ===== 军事/警察 =====
+USMC	美国海军陆战队
+KYFD	肯塔基消防局
+KYSP	肯塔基州警
+KSP	肯塔基州警
+MP	宪兵
+PD	警局
+SWAT	特警
+Military	军用
+Guntruck	武装卡车
+National Guard	国民警卫队
+
+# ===== 迷彩/制服 =====
+Alpine Multicam	阿尔卑斯多地形迷彩
+Alpine Camo	阿尔卑斯迷彩
+British DPM	英国DPM迷彩
+DPM-95	DPM-95
+Umbrella Corp	保护伞公司
+Kentucky National Guard	肯塔基国民警卫队
+
+# ===== PZ世界观企业/品牌（保留原名） =====
+Fossoil	Fossoil
+Spiffo	Spiffo
+Knox Distilery	诺克斯酿酒厂
+Kentucky Herald	肯塔基先驱报
+LBMW	LBMW
+Mass-Genfac	Mass-Genfac
+Brewster	Brewster
+Deer Valley	Deer Valley
+
+# ===== 宅文化 =====
+Dakimakura	抱枕
+Daki	抱枕
+Doujinshi	同人志
+Neckbeard	肥宅僵尸
+Degen	死宅
+
+# ===== 车辆部件 =====
+Hood	引擎盖
+Trunk Lid	后备箱盖
+Tailgate	尾门
+Windshield	挡风玻璃
+Roofrack	车顶行李架
+Bullbar	防撞杠
+Push Bumper	推撞保险杠
+Mudflaps	挡泥板
+Snorkel	涉水喉
+Spoiler	扰流板
+Sideskirts	侧裙
+Light Guards	灯罩护网
+Bodykit	车身套件
+Roof Hatch	车顶舱门
+Searchlight	探照灯
+Sunroof	天窗
+Sun Visor	遮阳罩
+Side Steps	侧踏板
+Awning	遮阳篷
+Trailer Jack	拖车千斤顶
+Muffler	消音器
+Gas Can	油桶
+Water Can	水桶
+Propane Tank	丙烷罐
+Toolbox	工具箱
+Spare Tire	备胎
+Spare Tire Mount	备胎架
+Gun Rack	枪架
+Cab Barrier	驾驶室隔断
+Stretcher	担架
+Wipers	雨刷器
+Fender	翼子板
+Bumper	保险杠
+Stakes	栏板
+Cab Cover	驾驶室罩
+Makeshift	临时
+Heavy Duty	重型
+Reinforced	加固
+Mesh	网格
+Armor	装甲
+Window Armor	车窗装甲
+Windshield Armor	挡风玻璃装甲
+
+# ===== 营地车 =====
+Flying Cloud	Flying Cloud
+Camper	营地车
+Trailer	拖车
+Retractable Awning	伸缩遮阳篷
+Floor Storage	地板储物
+Side Cabinet	侧柜
+Cabinets	橱柜
+
+# ===== 配方 / 制作 =====
+Schematics	图纸
+Make	制作
+Dismantle	拆解
+Repair	修理
+Salvage	回收
+Scraps	碎片
+Pry Open	撬开
+Paint	喷漆
+Craft	制作
+Plastic Welding	塑料焊接
+Tire Repair Kit	轮胎修补工具
+Rubber Solution	橡胶溶液
+Repair Strips	修补条
+Welding Staples	焊接钉
+
+# ===== 服装材质 =====
+Cotton	棉布
+Denim	牛仔布
+Leather	皮革
+Nylon	尼龙
+Fishnet	渔网
+Tanned Leather	鞣制皮革
+Latex	乳胶
+
+# ===== 服装类型 =====
+Dress	连衣裙
+Skirt	裙子
+Jacket	夹克
+Coat	外套
+Pants	裤子
+Shirt	衬衫
+Shoes	鞋子
+Suit	西装
+Trench Coat	风衣
+Bathrobe	浴袍
+Bodysuit	连体衣
+Corset	束腰
+Harness	绑带
+Tights	连裤袜
+Sleeve	袖子
+Gloves	手套
+Bowtie	领结
+Tie	领带
+Scarf	围巾
+Bandana	头巾
+Wild Rag	牛仔巾
+Suspender	吊带
+Belt	腰带
+Vest	马甲
+Shorts	短裤
+
+# ===== 容器/物品 =====
+Box	盒子
+Bag	包
+Duffel Bag	旅行袋
+
+# ===== 服装变体 =====
+Micro	超短
+Long	长款
+Short	短款
+Tall	加长
+Slim	修身
+Tight	紧身
+Loose	宽松
+Layered	层叠
+High Waist	高腰
+Vintage	复古
+Open	敞开
+Closed	闭合
+
+# ===== 身体部位 =====
+Left Arm	左臂
+Right Arm	右臂
+Left Leg	左腿
+Right Leg	右腿
+Both Legs	双腿
+Both Arms	双臂
+
+# ===== UI / 动作 =====
+More Skin	露出更多皮肤
+Less Skin	露出更少皮肤
+Wear Outside	穿在外面
+Wear Inside	穿在里面
+Wear on Both Legs	双腿穿戴
+Wear on One Leg	单腿穿戴
+Wear on Both Arms	双臂穿戴
+Wear on One Arm	单臂穿戴
+Put on Suspender	穿上吊带
+Take off Suspender	脱下吊带
+Put on Belt	系上腰带
+Take off Belt	解下腰带
+Open Jacket	打开夹克
+Close Jacket	合上夹克
+Roll Up Sleeves	卷起袖子
+Roll Down Sleeves	放下袖子
+Wear Longer	穿长一些
+Wear Shorter	穿短一些
+Wear Higher	穿高一些
+Wear Lower	穿低一些
+Switch Side	切换方向
+Wear Above Collar	戴在领上
+Wear Below Collar	戴在领下
+Rip Clothing	撕开衣物
+Attach To Left Hip	佩戴在左髋
+Attach To Right Hip	佩戴在右髋
+Attach To Right Side	佩戴在右侧
+Attach To Left Side	佩戴在左侧
+Front	正面
+Back	背面
+
+# ===== 配方 / 操作 =====
+Rip	撕开
+Worn	磨损的
+
+# ===== Holster holster holster =====
+Holster	枪套
+Hip Holster	髋部枪套
+
+# ===== 其他 =====
+Underwear	内衣
+KinkItUp	KinkItUp
+Frockin	Frockin
+Has an alternative appearance	有替换外观
+Enable	启用
+Spawn	生成
+Spawn Rate	生成率
+Distribution	分布
+Options	选项
+Preset	预设
+Recycling	回收利用
+Chance	概率
+Percentual	百分比
+
+# ===== 槽位 =====
+Slot	槽位
