@@ -9,12 +9,36 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from dotenv import load_dotenv
 from openai import OpenAI
 
-from config import MERGED_DIR, ONHOLD_DIR, OUTPUT_DIR, PROMPT_FILE, GLOSSARY_FILE, ROOT
+from config import MERGED_DIR, ONHOLD_DIR, OUTPUT_DIR, TRANSLATE_CACHE_FILE, PROMPT_FILE, GLOSSARY_FILE, ROOT
 
 TXT_KV_KEY_RE = re.compile(r'^\s*([^\s=]+)\s*=\s*"')
 TXT_SEP_RE = re.compile(r'^\s*-{10,}.*-{10,}\s*$')
 
+_CN_PUNCT = str.maketrans({
+    '（': '(', '）': ')', '，': ',', '；': ';',
+    '：': ':', '！': '!', '？': '?', '。': '.',
+    '“': '"', '”': '"', '‘': "'", '’': "'",
+})
 
+
+def _normalize_punct(text):
+    return text.translate(_CN_PUNCT)
+
+
+def _load_cache():
+    if TRANSLATE_CACHE_FILE.exists():
+        try:
+            with open(TRANSLATE_CACHE_FILE, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except (json.JSONDecodeError, OSError):
+            pass
+    return {}
+
+
+def _save_cache(cache):
+    TRANSLATE_CACHE_FILE.parent.mkdir(parents=True, exist_ok=True)
+    with open(TRANSLATE_CACHE_FILE, 'w', encoding='utf-8') as f:
+        json.dump(cache, f, ensure_ascii=False, indent='\t')
 def _parse_lua_string(s, start):
     i = start + 1
     result = []
@@ -217,8 +241,8 @@ def run():
         print(f'  TXT  {f.name}  ({kv_count} 条, header="{h}")')
 
     for f in json_files:
-        with open(f, encoding='utf-8', errors='replace') as f:
-            data = json.load(f)
+        with open(f, encoding='utf-8', errors='replace') as fh:
+            data = json.load(fh)
         json_entries.append((f.name, data))
         all_values.update(data.values())
         print(f'  JSON {f.name}  ({len(data)} 条)')
@@ -226,14 +250,30 @@ def run():
     vals = sorted(all_values, key=lambda x: (len(x), x))
     print(f'\n共 {len(vals)} 条唯一文本待翻译')
 
-    translations = {}
-    for bi, batch in enumerate(_batch(vals, batch_size), 1):
-        s = (bi - 1) * batch_size + 1
-        e = min(bi * batch_size, len(vals))
-        print(f'\n翻译批次 {bi} ({s}-{e}/{len(vals)})...')
-        r = _call_api(client, model, sp, batch)
-        translations.update(r)
-        print(f'  获得 {len(r)} 条翻译')
+    cache = _load_cache()
+    translations = {k: v for k, v in cache.items() if k in all_values}
+    cached_count = len(translations)
+    if cached_count:
+        print(f'  其中 {cached_count} 条命中缓存')
+
+    uncached = [v for v in vals if v not in translations]
+    if uncached:
+        print(f'  需调用AI翻译 {len(uncached)} 条')
+        for bi, batch in enumerate(_batch(uncached, batch_size), 1):
+            s = (bi - 1) * batch_size + 1
+            e = min(bi * batch_size, len(uncached))
+            print(f'\n翻译批次 {bi} ({s}-{e}/{len(uncached)})...')
+            r = _call_api(client, model, sp, batch)
+            translations.update(r)
+            cache.update(r)
+            print(f'  获得 {len(r)} 条翻译')
+
+        _save_cache(cache)
+        print(f'  缓存已更新 (共 {len(cache)} 条)')
+    else:
+        print('  全部命中缓存, 无需调用AI')
+
+    translations = {k: _normalize_punct(v) for k, v in translations.items()}
 
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     print(f'\n生成输出到 {OUTPUT_DIR}...')

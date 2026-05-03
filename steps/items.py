@@ -42,7 +42,8 @@ def run():
 
         for root, dirs, files in os.walk(wspath):
             rp = Path(root)
-            if 'media' not in rp.parts or 'Scripts' not in rp.parts:
+            parts_lower = [p.lower() for p in rp.parts]
+            if 'scripts' not in parts_lower:
                 continue
             rel = [p.lower() for p in rp.relative_to(wspath).parts]
             try:

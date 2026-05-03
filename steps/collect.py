@@ -26,9 +26,9 @@ def _parse_mod_name(mod_info_path):
 
 def _find_en_files(workshop_path):
     results = []
-    target = str(TRANSLATE_EN)
+    target = str(TRANSLATE_EN).lower()
     for root, dirs, files in os.walk(workshop_path):
-        if root.endswith(target):
+        if root.lower().endswith(target):
             for f in files:
                 ext = os.path.splitext(f)[1].lower()
                 if ext in ('.txt', '.json'):

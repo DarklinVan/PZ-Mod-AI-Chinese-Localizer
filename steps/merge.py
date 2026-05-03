@@ -25,7 +25,9 @@ def _collect():
 
 def _inner(text):
     a = text.index('{')
-    b = text.rindex('}')
+    b = text.rfind('}')
+    if b == -1:
+        return text[a + 1:].strip()
     return text[a + 1:b].strip()
 
 
@@ -33,6 +35,8 @@ def _normalize(text):
     lines = []
     for line in text.split('\n'):
         s = line.strip()
+        if s.startswith('/*') or s.startswith('*') or s.startswith('//'):
+            continue
         lines.append('\t' + s if s else '')
     return '\n'.join(lines)
 
