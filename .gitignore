@@ -1,0 +1,13 @@
+.venv/
+.idea/
+.vscode/
+
+__pycache__/
+*.pyc
+*.pyo
+
+.env
+
+temp/
+output/
+original/
