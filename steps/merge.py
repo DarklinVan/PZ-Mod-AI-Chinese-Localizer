@@ -1,5 +1,6 @@
 import json
 import os
+import re
 import sys
 sys.path.insert(0, str(__import__('pathlib').Path(__file__).parent.parent))
 from config import TEMP_DIR, MERGED_DIR, TRANSLATE_EN
@@ -24,7 +25,9 @@ def _collect():
 
 
 def _inner(text):
-    a = text.index('{')
+    a = text.find('{')
+    if a == -1:
+        return text.strip()
     b = text.rfind('}')
     if b == -1:
         return text[a + 1:].strip()
@@ -41,8 +44,14 @@ def _normalize(text):
     return '\n'.join(lines)
 
 
-def _txt_header(text):
-    return text[:text.index('{')].strip()
+def _txt_header(text, filename):
+    idx = text.find('{')
+    if idx == -1:
+        m = re.match(r'^(.*)_EN\.txt$', filename, re.IGNORECASE)
+        if m:
+            return m.group(1) + '_EN'
+        return os.path.splitext(filename)[0]
+    return text[:idx].strip()
 
 
 def _sep(mod_id, workshop_id, indent=''):
@@ -53,9 +62,10 @@ def _merge_txt(infos):
     header = None
     parts = []
     for fp, wid, mod_id in infos:
+        fn = os.path.basename(fp)
         text = open(fp, encoding='utf-8', errors='replace').read()
         if header is None:
-            header = _txt_header(text)
+            header = _txt_header(text, fn)
         parts.append(_sep(mod_id, wid, indent='\t'))
         parts.append(_normalize(_inner(text)).rstrip(','))
     return f'{header} {{\n' + '\n'.join(parts) + '\n}\n'

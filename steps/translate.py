@@ -29,16 +29,23 @@ def _load_cache():
     if TRANSLATE_CACHE_FILE.exists():
         try:
             with open(TRANSLATE_CACHE_FILE, 'r', encoding='utf-8') as f:
-                return json.load(f)
+                return {k: v for k, v in json.load(f).items() if k}
         except (json.JSONDecodeError, OSError):
             pass
     return {}
 
 
 def _save_cache(cache):
+    cache = {k: v for k, v in cache.items() if k}
     TRANSLATE_CACHE_FILE.parent.mkdir(parents=True, exist_ok=True)
-    with open(TRANSLATE_CACHE_FILE, 'w', encoding='utf-8') as f:
+    tmp = TRANSLATE_CACHE_FILE.with_suffix('.tmp')
+    with open(tmp, 'w', encoding='utf-8') as f:
         json.dump(cache, f, ensure_ascii=False, indent='\t')
+        f.flush()
+        os.fsync(f.fileno())
+    tmp.replace(TRANSLATE_CACHE_FILE)
+
+
 def _parse_lua_string(s, start):
     i = start + 1
     result = []
@@ -141,9 +148,10 @@ def _batch(values, n=200):
         yield values[i:i + n]
 
 
-def _call_api(client, model, sp, batch):
+def _call_api(client, model, sp, batch, max_tokens):
     user = '\n'.join(f'{json.dumps(v, ensure_ascii=False)}: ""' for v in batch)
     for attempt in range(3):
+        content = ''
         try:
             resp = client.chat.completions.create(
                 model=model,
@@ -152,14 +160,15 @@ def _call_api(client, model, sp, batch):
                     {'role': 'user', 'content': user},
                 ],
                 temperature=0.1,
-                max_tokens=8192,
+                max_tokens=max_tokens,
             )
             content = resp.choices[0].message.content.strip()
             content = re.sub(r'^```(?:json)?\s*\n?', '', content)
             content = re.sub(r'\n?```\s*$', '', content)
             return json.loads(content)
         except json.JSONDecodeError:
-            print(f'  JSON解析失败 (尝试 {attempt + 1})')
+            tail = content[-200:] if len(content) > 200 else content
+            print(f'  JSON解析失败 (尝试 {attempt + 1}), 响应尾部: {tail}')
             if attempt < 2:
                 time.sleep(2)
         except Exception as e:
@@ -201,6 +210,7 @@ def run():
     base_url = os.getenv('DEEPSEEK_BASE_URL', 'https://api.deepseek.com')
     model = os.getenv('DEEPSEEK_MODEL', 'deepseek-chat')
     batch_size = int(os.getenv('TRANSLATE_BATCH_SIZE', '200'))
+    max_tokens = int(os.getenv('TRANSLATE_MAX_TOKENS', '16384'))
 
     if not api_key or api_key == 'sk-your-deepseek-api-key':
         print('请先在 .env 中设置 DEEPSEEK_API_KEY')
@@ -237,14 +247,14 @@ def run():
         h, items = _parse_txt(f)
         txt_entries.append((f.name, h, items))
         kv_count = sum(1 for it in items if it[0] == 'kv')
-        all_values.update(v for it in items if it[0] == 'kv' for v in [it[2]])
+        all_values.update(v for it in items if it[0] == 'kv' and it[2] for v in [it[2]])
         print(f'  TXT  {f.name}  ({kv_count} 条, header="{h}")')
 
     for f in json_files:
         with open(f, encoding='utf-8', errors='replace') as fh:
             data = json.load(fh)
         json_entries.append((f.name, data))
-        all_values.update(data.values())
+        all_values.update(v for v in data.values() if v)
         print(f'  JSON {f.name}  ({len(data)} 条)')
 
     vals = sorted(all_values, key=lambda x: (len(x), x))
@@ -263,7 +273,7 @@ def run():
             s = (bi - 1) * batch_size + 1
             e = min(bi * batch_size, len(uncached))
             print(f'\n翻译批次 {bi} ({s}-{e}/{len(uncached)})...')
-            r = _call_api(client, model, sp, batch)
+            r = _call_api(client, model, sp, batch, max_tokens)
             translations.update(r)
             cache.update(r)
             print(f'  获得 {len(r)} 条翻译')
@@ -278,31 +288,40 @@ def run():
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     print(f'\n生成输出到 {OUTPUT_DIR}...')
 
+    txt_groups = {}
     for fn, h, items in txt_entries:
         ch = _cn_header(h, fn)
-        ci = []
+        cn_name = re.sub(r'_EN\.txt$', '_CN.txt', fn, flags=re.IGNORECASE)
+        if cn_name not in txt_groups:
+            txt_groups[cn_name] = {'header': ch, 'items': []}
         for it in items:
             if it[0] == 'kv':
                 _, k, v = it
-                ci.append(('kv', k, translations.get(v, v)))
+                txt_groups[cn_name]['items'].append(('kv', k, translations.get(v, v)))
             elif it[0] == 'sep':
-                ci.append(it)
+                txt_groups[cn_name]['items'].append(it)
 
-        cn_name = re.sub(r'_EN\.txt$', '_CN.txt', fn, flags=re.IGNORECASE)
-        (OUTPUT_DIR / cn_name).write_text(_fmt_txt(ch, ci), encoding='utf-8')
-        print(f'  TXT  {fn} -> {cn_name}')
+    for cn_name, grp in sorted(txt_groups.items()):
+        (OUTPUT_DIR / cn_name).write_text(_fmt_txt(grp['header'], grp['items']), encoding='utf-8')
+        print(f'  TXT  {cn_name}')
 
+    json_groups = {}
     for fn, data in json_entries:
-        cd = {k: translations.get(v, v) for k, v in data.items()}
         cn_name = re.sub(r'_EN\.json$', '_CN.json', fn, flags=re.IGNORECASE)
+        cd = json_groups.setdefault(cn_name, {})
+        for k, v in data.items():
+            cd[k] = translations.get(v, v)
+
+    for cn_name in sorted(json_groups):
+        cd = json_groups[cn_name]
         (OUTPUT_DIR / cn_name).write_text(
             json.dumps(cd, indent='\t', ensure_ascii=False) + '\n',
             encoding='utf-8'
         )
-        print(f'  JSON {fn} -> {cn_name}')
+        print(f'  JSON {cn_name}')
 
     missing = sum(1 for v in all_values if v not in translations)
     if missing:
         print(f'\n注意: {missing} 条文本未翻译，已保留原文')
 
-    print(f'\n完成! 共处理 {len(txt_entries)} 个TXT + {len(json_entries)} 个JSON')
+    print(f'\n完成! 共处理 {len(txt_groups)} 个TXT + {len(json_groups)} 个JSON')

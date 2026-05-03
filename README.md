@@ -32,11 +32,8 @@ Project Zomboid 模组本地化（英→中）辅助工具。
 ## 环境准备
 
 ```powershell
-# 创建虚拟环境（如不存在）
-python -m venv .venv
-
 # 安装依赖
-.venv\Scripts\pip.exe install openai python-dotenv -i https://pypi.tuna.tsinghua.edu.cn/simple
+pip install openai python-dotenv -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 # 配置 API Key
 copy .env.example .env
@@ -48,17 +45,17 @@ copy .env.example .env
 ### 一站式运行
 
 ```powershell
-.venv\Scripts\python.exe main.py              # collect → merge → items → translate
+python.exe main.py              # collect → merge → items → translate
 ```
 
 ### 分步运行
 
 ```powershell
-.venv\Scripts\python.exe main.py collect      # 步骤1: 收集EN文件
-.venv\Scripts\python.exe main.py merge        # 步骤2: 合并同名文件
-.venv\Scripts\python.exe main.py items        # 步骤3: 提取物品DisplayName
-.venv\Scripts\python.exe main.py translate    # 步骤4: AI翻译
-.venv\Scripts\python.exe main.py clean        # 手动: 清理temp目录
+python.exe main.py collect      # 步骤1: 收集EN文件
+python.exe main.py merge        # 步骤2: 合并同名文件
+python.exe main.py items        # 步骤3: 提取物品DisplayName
+python.exe main.py translate    # 步骤4: AI翻译
+python.exe main.py clean        # 手动: 清理temp目录
 ```
 
 ### 各步骤说明
